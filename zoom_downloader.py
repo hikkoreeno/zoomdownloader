@@ -74,9 +74,9 @@ def download_zoom_recording(share_url, output_dir="downloads"):
             return
 
         # DEBUG: Dump the full play_info to see codec/stream details
-        with open("debug_streams.json", "w", encoding="utf-8") as f:
-            json.dump(play_info, f, indent=2, ensure_ascii=False)
-        print("[*] Debug: play_info dumped to debug_streams.json")
+        # with open("debug_streams.json", "w", encoding="utf-8") as f:
+        #     json.dump(play_info, f, indent=2, ensure_ascii=False)
+        # print("[*] Debug: play_info dumped to debug_streams.json")
 
 
             
