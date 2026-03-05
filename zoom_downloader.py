@@ -4,6 +4,7 @@ import sys
 import json
 import time
 import requests
+import subprocess
 from playwright.sync_api import sync_playwright
 from tqdm import tqdm
 from bs4 import BeautifulSoup
@@ -71,6 +72,11 @@ def download_zoom_recording(share_url, output_dir="downloads"):
             print("[-] Could not find play info. Direct extraction failed.")
             browser.close()
             return
+
+        # DEBUG: Dump the full play_info to see codec/stream details
+        with open("debug_streams.json", "w", encoding="utf-8") as f:
+            json.dump(play_info, f, indent=2, ensure_ascii=False)
+        print("[*] Debug: play_info dumped to debug_streams.json")
 
 
             
@@ -198,18 +204,40 @@ def download_zoom_recording(share_url, output_dir="downloads"):
             print(f"\n[+] Download complete: {filepath}")
             print(f"[*] Detected Resolution: {resolution}")
             
-            # Provide advice for high resolution videos
+            # Resolution Normalization logic
             if "*" in resolution:
                 try:
                     w, h = map(int, resolution.split("*"))
                     if w > 1920 or h > 1080:
-                        print("\n[!] IMPORTANT: This recording is in High Resolution (QHD/2K).")
-                        print("[!] If your media player shows an 'Unsupported Encoding' error, please try:")
-                        print("[!] 1. Using VLC Media Player (https://www.videolan.org/)")
-                        print("[!] 2. Opening the file with a Web Browser (Chrome/Edge)")
-                        print("[!] 3. Windows Media Player might not support this resolution/codec by default.")
-                except:
-                    pass
+                        print(f"\n[!] High Resolution detected ({resolution}). Normalizing to 1080p for stability...")
+                        normalized_filepath = filepath.replace(".mp4", "_1080p.mp4")
+                        
+                        # FFmpeg command to downscale and normalize encoding
+                        # -vf "scale='min(1920,iw)':'min(1080,ih)':force_original_aspect_ratio=decrease"
+                        # Ensures it doesn't upscale and maintains aspect ratio.
+                        ffmpeg_cmd = [
+                            "ffmpeg", "-y", "-i", filepath,
+                            "-vf", "scale='min(1920,iw)':-2", 
+                            "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+                            "-c:a", "copy",
+                            normalized_filepath
+                        ]
+                        
+                        try:
+                            subprocess.run(ffmpeg_cmd, check=True)
+                            print(f"[+] Normalization complete: {normalized_filepath}")
+                            # Keep original but recommend the normalized one
+                            print(f"[*] RECOMMENDATION: Use '{os.path.basename(normalized_filepath)}' for best playback stability.")
+                            return normalized_filepath
+                        except subprocess.CalledProcessError as e:
+                            print(f"[-] FFmpeg normalization failed: {e}")
+                            print("[!] Please use VLC or Chrome to play the original high-res file.")
+                    elif w > 0:
+                        # Even for <= 1080p, if it's high resolution, provide the tip
+                        if w > 1280 or h > 720:
+                            print("\n[TIP] If you experience 'Green Screen' or lag, try playing with VLC Media Player.")
+                except Exception as e:
+                    print(f"[*] Resolution parsing / normalization skipped: {e}")
 
             return filepath
 
