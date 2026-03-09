@@ -2,3 +2,5 @@ playwright
 requests
 beautifulsoup4
 tqdm
+fastapi
+uvicorn

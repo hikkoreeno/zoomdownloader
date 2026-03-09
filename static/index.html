@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoom Downloader - Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Zoom Downloader</h1>
+            <p>Paste the Zoom share URL to start downloading</p>
+        </header>
+
+        <main>
+            <div class="input-card">
+                <div class="input-group">
+                    <input type="text" id="url-input" placeholder="https://zoom.us/rec/share/..." autocomplete="off">
+                    <button id="download-btn">Download</button>
+                </div>
+            </div>
+
+            <div id="status-container" class="status-card h-hidden">
+                <div class="status-header">
+                    <span id="status-message">Ready to go</span>
+                    <span id="status-percent">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <div id="status-detail" class="status-detail">Initializing...</div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Zoom Downloader Premium</p>
+        </footer>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
